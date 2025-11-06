@@ -1,0 +1,114 @@
+{% extends 'Base/base.html' %}
+{% block title %}Dashboard Administrador{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='Estilos/login.css') }}">
+
+<div class="dashboard">
+  <!-- ===== SIDEBAR IZQUIERDA ===== -->
+  <div class="sidebar">
+    <div class="brand">
+      <img src="{{ url_for('static', filename='Imagenes/logoazul.png') }}" alt="Logo">
+      <h2>Admin Panel</h2>
+      <p class="welcome-text">Bienvenido, {{ user.username }}</p>
+    </div>
+    <a href="#" class="sidebar-btn active" data-section="emprendedores">Emprendedores</a>
+    <a href="#" class="sidebar-btn" data-section="exploradores">Exploradores</a>
+    <a href="{{ url_for('logout') }}">Cerrar sesión</a>
+  </div>
+
+  <!-- ===== CONTENIDO PRINCIPAL ===== -->
+  <div class="main-content">
+    <h1 id="section-title">Emprendedores registrados</h1>
+
+    <!-- === SECCIÓN EMPRENDEDORES === -->
+    <div id="emprendedores" class="content-section active">
+      <div class="content-card">
+        <h2>Lista de Emprendedores</h2>
+        <table class="data-table wide">
+          <thead>
+            <tr>
+              <th>Nombre</th>
+              <th>NIT</th>
+              <th>Empresa</th>
+              <th>Plan</th>
+              <th>Estado</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Juan Pérez</td>
+              <td>123456789</td>
+              <td>EcoModa</td>
+              <td>Premium</td>
+              <td>Activo</td>
+            </tr>
+            <tr>
+              <td>Laura Torres</td>
+              <td>987654321</td>
+              <td>VerdeVida</td>
+              <td>Básico</td>
+              <td>Inactivo</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- === SECCIÓN EXPLORADORES === -->
+    <div id="exploradores" class="content-section">
+      <div class="content-card">
+        <h2>Exploradores disponibles</h2>
+        <table class="data-table wide">
+          <thead>
+            <tr>
+              <th>Nombre</th>
+              <th>Correo</th>
+              <th>Estado</th>
+              <th>Items guardados</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Carlos Gómez</td>
+              <td>carlosg@example.com</td>
+              <td>Activo</td>
+              <td>12</td>
+              <td><button class="btn small btn-primary">Ver</button> <button class="btn small btn-secondary">Eliminar</button></td>
+            </tr>
+            <tr>
+              <td>Ana Ruiz</td>
+              <td>anaruiz@example.com</td>
+              <td>Inactivo</td>
+              <td>7</td>
+              <td><button class="btn small btn-primary">Ver</button> <button class="btn small btn-secondary">Eliminar</button></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- === SCRIPT PARA CAMBIAR SECCIONES Y TÍTULO === -->
+<script>
+  document.querySelectorAll('.sidebar-btn').forEach(btn => {
+    btn.addEventListener('click', e => {
+      e.preventDefault();
+      document.querySelectorAll('.sidebar-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+
+      const section = btn.dataset.section;
+      document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
+      document.getElementById(section).classList.add('active');
+
+      const title = document.getElementById('section-title');
+      title.textContent = section === 'emprendedores' 
+        ? 'Emprendedores registrados' 
+        : 'Exploradores disponibles: elimínalos o gestiónalos';
+    });
+  });
+</script>
+{% endblock %}

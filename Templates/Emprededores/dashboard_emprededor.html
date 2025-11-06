@@ -1,0 +1,138 @@
+{% extends 'Base/base.html' %}
+{% block title %}Dashboard Emprendedor{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='Estilos/login.css') }}">
+
+<div class="dashboard">
+  <!-- ===== SIDEBAR IZQUIERDA ===== -->
+  <div class="sidebar">
+    <div class="brand">
+      <img src="{{ url_for('static', filename='Imagenes/logoazul.png') }}" alt="Logo">
+      <h2>Panel Emprendedor</h2>
+      <p class="welcome-text">Bienvenido, {{ user.username }}</p>
+    </div>
+
+    <a href="#" class="sidebar-btn active" data-section="predicciones">Predicciones</a>
+    <a href="#" class="sidebar-btn" data-section="estadisticas">Estadísticas</a>
+    <a href="#" class="sidebar-btn" data-section="perfil">Mi Empresa</a>
+    <a href="{{ url_for('logout') }}">Cerrar sesión</a>
+  </div>
+
+  <!-- ===== CONTENIDO PRINCIPAL ===== -->
+  <div class="main-content">
+    <h1 id="section-title">Predicciones de visitas</h1>
+
+    <!-- === SECCIÓN PREDICCIONES === -->
+    <div id="predicciones" class="content-section active">
+      <div class="content-card pastel-sky">
+        <h2>Predicción semanal de visitas</h2>
+        <p>Visualiza el comportamiento estimado de tus visitas esta semana según los datos históricos.</p>
+        <canvas id="graficoPrediccion"></canvas>
+      </div>
+
+      <div class="content-card pastel-green">
+        <h3>Selecciona un día para ver detalles</h3>
+        <div class="btn-group">
+          <button class="btn small btn-primary">Lunes</button>
+          <button class="btn small btn-primary">Martes</button>
+          <button class="btn small btn-primary">Miércoles</button>
+          <button class="btn small btn-primary">Jueves</button>
+          <button class="btn small btn-primary">Viernes</button>
+          <button class="btn small btn-primary">Sábado</button>
+          <button class="btn small btn-primary">Domingo</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- === SECCIÓN ESTADÍSTICAS === -->
+    <div id="estadisticas" class="content-section">
+      <div class="content-card pastel-sun">
+        <h2>Resumen estadístico</h2>
+        <table class="data-table wide">
+          <thead>
+            <tr>
+              <th>Semana</th>
+              <th>Promedio de visitas</th>
+              <th>Día más activo</th>
+              <th>Variación (%)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Semana 43</td>
+              <td>85</td>
+              <td>Sábado</td>
+              <td>+12%</td>
+            </tr>
+            <tr>
+              <td>Semana 44</td>
+              <td>90</td>
+              <td>Domingo</td>
+              <td>+6%</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="content-card pastel-lavender">
+        <h3>Recomendaciones</h3>
+        <ul>
+          <li>Refuerza la promoción los días de mayor flujo.</li>
+          <li>Considera ofertas especiales entre semana para equilibrar visitas.</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- === SECCIÓN PERFIL EMPRESA === -->
+    <div id="perfil" class="content-section">
+      <div class="content-card pastel-blue">
+        <h2>Información de tu empresa</h2>
+        <button class="btn btn-primary">Actualizar información</button>
+      </div>
+
+      <div class="content-card pastel-green">
+        <h3>Productos o servicios</h3>
+        <table class="data-table wide">
+          <thead>
+            <tr>
+              <th>Nombre</th>
+              <th>Categoría</th>
+              <th>Precio</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Accesorio ecológico</td>
+              <td>Moda sostenible</td>
+              <td>$45.000</td>
+              <td><button class="btn small btn-primary">Editar</button></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- === SCRIPT PARA CAMBIAR SECCIONES Y TÍTULO === -->
+<script>
+  document.querySelectorAll('.sidebar-btn').forEach(btn => {
+    btn.addEventListener('click', e => {
+      e.preventDefault();
+      document.querySelectorAll('.sidebar-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+
+      const section = btn.dataset.section;
+      document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
+      document.getElementById(section).classList.add('active');
+
+      const title = document.getElementById('section-title');
+      if (section === 'predicciones') title.textContent = 'Predicciones de visitas';
+      else if (section === 'estadisticas') title.textContent = 'Estadísticas de rendimiento';
+      else title.textContent = 'Perfil de tu empresa';
+    });
+  });
+</script>
+{% endblock %}

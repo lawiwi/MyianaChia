@@ -1,0 +1,5 @@
+Flask>=2.2
+Flask-Session>=0.4
+Flask-SQLAlchemy>=3.0
+python-dotenv>=1.0
+gunicorn>=20.1

@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Book</title>
+    <script src="https://kit.fontawesome.com/50956a932a.js" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='estiloschia.css') }}">
+    <script src="{{ url_for('static', filename='librochia.js') }}" defer></script>
+      <style>
+    /* Burbuja flotante */
+    .whatsapp-float {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      display: flex;
+      align-items: center;
+      background: #25d366;
+      color: white;
+      border-radius: 50px;
+      padding: 10px 16px;
+      text-decoration: none;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+      transition: all 0.3s ease;
+      z-index: 1000;
+      font-weight: bold;
+    }
+
+    .whatsapp-float:hover {
+      background: #20ba5a;
+      transform: scale(1.05);
+    }
+
+    .whatsapp-float img {
+      width: 28px;
+      height: 28px;
+      margin-right: 10px;
+    }
+
+    /* Animación suave al aparecer */
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .whatsapp-float {
+      animation: slideIn 0.6s ease forwards;
+    }
+  </style>
+</head>
+<body>
+    <!-- Botón flotante de WhatsApp -->
+  <a href="https://w.app/mjxqlt" 
+     class="whatsapp-float" target="_blank" rel="noopener noreferrer">
+    <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" alt="WhatsApp">
+    ¡Contáctanos!
+  </a>
+    <!-- Contenedor General -->
+    <div style="display: flex; flex-direction: column; align-items: center;">
+        <header class="main-header">
+            <h1>Restaurantes</h1>
+            <div class="header-content">
+                <img src="/static/RESTAYR.png" alt="Logo entretenimiento Chía" class="header-logo" style="width: 180px; height: auto; margin-right: 20px;">
+                    <p class="subtitle">Bienvenido a nuestro catálogo de comida, un espacio creado para despertar tus sentidos y antojos. Aquí encontrarás una selección de platos irresistibles, elaborados con ingredientes frescos y de la mejor calidad.</p>
+            </div>
+            <div class="button-container">
+                <button class = "category-button comida" onclick="location.href='/Chia/'">
+                    🎊 Inicio
+                    <span>Catalogo Principal</span>
+                </button>
+                <button class = "category-button arte" onclick="location.href='/Chia/Arte'">
+                    🎨 Arte y Cultura
+                    <span>Museos, galerías y eventos</span>
+                </button>
+                <button class = "category-button nat" onclick="location.href='naturaleza.html'">
+                    🌳 Naturaleza
+                    <span>Parques y espacios al aire libre</span>
+                </button>
+                <button class = "category-button ocio" onclick="location.href='/Chia/Ocio'">
+                    🎭 Ocio y Entretenimiento
+                    <span>Cines, teatros y diversión</span>
+                </button>
+                <button class = "category-button depo" onclick="location.href='deportes.html'">
+                    ⚽ Deportes
+                    <span>Actividades deportivas</span>
+                </button>
+                <button class = "category-button shop" onclick="location.href='compras.html'">
+                    🛍️ Compras
+                    <span>Centros comerciales y tiendas</span>
+                </button>
+            </div>
+        </header>
+        
+
+    <div style="display: flex; justify-content: center; align-items: center; margin-top: 20px;">
+        <!-- Previous Button -->
+        <button id="prev-btn">
+            <i class="fas fa-arrow-circle-left"></i>
+        </button>
+
+
+        <!-- Book -->
+        <div id="book" class="book">
+            <!-- Paper 1 -->
+            <div id="p1" class="paper">
+                <div class="front front-portada">
+                    <div id="f1" class="front-content">
+                        <div class="content">
+                            <h2>Catálogo Restaurantes!</h2>
+                            <p>Bienvenido a nuestro catálogo de comida, un espacio creado para despertar tus sentidos y antojos. Aquí encontrarás una selección de restaurantes. bares y cafes irresistibles.</p>
+                            <span class="arrow">--------------→</span>
+                
+                        </div>
+                    </div>
+                </div>
+                <div class="back">
+                    <div id="b1" class="back-content">
+                        <a href="https://fontanarcentrocomercial.appsmccann.com/wp-content/uploads/2025/03/REGLAMENTO_DIGITAL_MV-5.pdf" class="store-card">
+                        <div class="store-card-image">
+                            <img src="https://fontanarcentrocomercial.com/wp-content/uploads/2025/02/MISIONV-MOBILE.png" alt="Nombre del almacén">
+                          </div>
+                          <div class="store-card-content">
+                            <h3>Misión Vitrum - LaserTag</h3>
+                            <p>Juego de laser tag con temática futurista para todas las edades.</p>
+                            <p><strong>Dirección:</strong> Centro Comercial Fontanar, primer piso sur, entre Tugó y Dollarcity. </p>
+                            <p><strong>Rango de Precios:</strong> $19.000 - $43.000 Descuentos por días.</p>
+                            <p><strong>Horarios:</strong> TODOS LOS DÍAS: 1:00 p.m. a 8:00 p. m.</p>
+                          </div>
+                        </a>
+
+                        <a href="https://playzonevip.com/" class="store-card reverse">
+                            <div class="store-card-image">
+                              <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQZfR15OGUS-heVUoKt0XvTa-CFj8YRhehHgg&s" alt="Playzone VIP">
+                            </div>
+                            <div class="store-card-content">
+                              <h3>Playzone VIP</h3>
+                              <p class="description">Centro de entretenimiento con canchas de fútbol, paintball y salas de escape.</p>
+                              <p><strong>Teléfono:</strong> +57 313 248 5526</p>
+                              <p><strong>Dirección:</strong> Cra. 9 Vereda Bojacá / Km 1 vía Chía-Cajicá</p>
+                              <p><strong>Rango de Precios:</strong> $$</p>
+                              <p><strong>Horarios:</strong> Todos los días 2pm a 11pm</p>
+                            </div>
+                          </a>
+                          
+                    </div>
+                </div>
+            </div>
+            <!-- Paper 2 -->
+            <div id="p2" class="paper">
+                <div class="front">
+                    <div id="f2" class="front-content">
+                        <a href="https://www.centrochia.com.co/" class="store-card reverse">
+                            <div class="store-card-image">
+                              <img src="https://obycon.com/wp-content/uploads/2022/02/Parque-Centro-Chia-2.jpg" alt="Centro Comercial Centro Chía">
+                            </div>
+                            <div class="store-card-content">
+                              <h3>Centro Comercial Centro Chía</h3>
+                              <p class="description">Centro comercial con variedad de tiendas, restaurantes y un parque natural interno.</p>
+                              <p><strong>Teléfono:</strong> +57 1 8689012</p>
+                              <p><strong>Dirección:</strong> Avenida Pradilla #5-30, Chía</p>
+                              <p><strong>Rango de Precios Parqueadero:</strong> $1.900 - $23.000</p>
+                              <p><strong>Horarios:</strong> Lunes a domingo 10am a 8pm</p>
+                            </div>
+                        </a>
+
+                        <a href="https://fontanarcentrocomercial.com/" class="store-card">
+                            <div class="store-card-image">
+                              <img src="https://fontanarcentrocomercial.com/wp-content/uploads/2023/01/Foto-Fachada.jpg" alt="Centro Comercial Fontanar">
+                            </div>
+                            <div class="store-card-content">
+                              <h3>Centro Comercial Fontanar</h3>
+                              <p class="description">Amplio centro comercial con tiendas de marcas internacionales, restaurantes y entretenimiento.</p>
+                              <p><strong>Teléfono:</strong> +57 1 8678901</p>
+                              <p><strong>Dirección:</strong> Km 2.5 Vía Chía – Cajicá</p>
+                              <p><strong>Rango de Precios:</strong> $3.000 - $7.000</p>
+                              <p><strong>Horarios:</strong> Lunes a domingo 10am a 9pm</p>
+                            </div>
+                          </a>
+                    </div>
+                </div>
+                <div class="back">
+                    <div id="b2" class="back-content">
+                        <a href="https://www.centrochia.com.co/parque/" class="store-card reverse">
+                            <div class="store-card-image">
+                              <img src="https://www.centrochia.com.co/wp-content/uploads/2022/06/EXPORTADO-6-1-MB.jpg" alt="Parque Natural Centro Chía">
+                            </div>
+                            <div class="store-card-content">
+                              <h3>Parque Natural Centro Chía</h3>
+                              <p class="description">Parque con zonas verdes, juegos infantiles y senderos ecológicos dentro del centro comercial.</p>
+                              <p><strong>Teléfono:</strong> +57 1 8667890</p>
+                              <p><strong>Dirección:</strong> Avenida Pradilla #5-30, Chía</p>
+                              <p><strong>Rango de Precios:</strong> Entrada libre</p>
+                              <p><strong>Horarios:</strong> Todos los días 10am a 8pm</p>
+                            </div>
+                          </a>
+
+                          <a href="https://turismo.chia-cundinamarca.gov.co/2023/09/20/parque-natural-montana-del-oso/" class="store-card">
+                            <div class="store-card-image">
+                              <img src="https://dynamic-media-cdn.tripadvisor.com/media/photo-o/16/5b/14/6a/photo1jpg.jpg?w=1200&h=-1&s=1" alt="Parque La Montaña del Oso">
+                            </div>
+                            <div class="store-card-content">
+                              <h3>Parque La Montaña del Oso</h3>
+                              <p class="description">Espacio natural ideal para caminatas ecológicas y avistamiento de fauna.</p>
+                              <p><strong>Teléfono:</strong> +57 1 8654321</p>
+                              <p><strong>Dirección:</strong> Vereda La Balsa, Chía</p>
+                              <p><strong>Rango de Precios:</strong> Entrada libre</p>
+                              <p><strong>Horarios:</strong> Todos los días 6am a 6pm</p>
+                            </div>
+                          </a>
+                    </div>
+                </div>
+            </div>
+            <!-- Paper 3 -->
+            <div id="p3" class="paper">
+                <div class="front">
+                    <div id="f3" class="front-content">
+                        <a href="https://www.elgalapago.com/" class="store-card reverse">
+                            <div class="store-card-image">
+                              <img src="https://elgalapago.com/wp-content/uploads/2024/03/campestre.jpg" alt="El Galápago Campestre">
+                            </div>
+                            <div class="store-card-content">
+                              <h3>El Galápago Campestre</h3>
+                              <p class="description">Restaurante campestre que ofrece carnes a la parrilla en un entorno natural.</p>
+                              <p><strong>Teléfono:</strong> +57 1 8645678</p>
+                              <p><strong>Dirección:</strong> Vereda Bojacá, Chía</p>
+                              <p><strong>Rango de Precios:</strong> $16.900 - $80.400</p>
+                              <p><strong>Horarios:</strong> Viernes a domingo 12pm a 9pm</p>
+                            </div>
+                        </a>
+
+                        <a href="https://www.instagram.com/celestinarestaurante/?hl=es" class="store-card">
+                            <div class="store-card-image">
+                            <img src="https://media-cdn.tripadvisor.com/media/photo-s/0e/67/5c/73/photo4jpg.jpg" alt="Celestina">
+                            </div>
+                            <div class="store-card-content">
+                              <h3>Celestina</h3>
+                              <p class="description">Restaurante con una propuesta gastronómica innovadora y ambiente elegante.</p>
+                              <p><strong>Teléfono:</strong> +57 1 8637890</p>
+                              <p><strong>Dirección:</strong> Avenida Pradilla #5-30, Chía</p>
+                              <p><strong>Rango de Precios:</strong> $$ - $$$</p>
+                              <p><strong>Horarios:</strong> Martes a domingo 1pm a 11pm</p>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+                <div class="back">
+                    <div id="b3" class="back-content">
+                        <a href="https://www.instagram.com/restaurantetierraroja/?hl=es" class="store-card reverse">
+                            <div class="store-card-image">
+                              <img src="https://dynamic-media-cdn.tripadvisor.com/media/photo-o/0b/44/70/8d/tierra-roja.jpg?w=900&h=500&s=1" alt="Tierra Roja Restaurant">
+                            </div>
+                            <div class="store-card-content">
+                              <h3>Tierra Roja Restaurante</h3>
+                              <p class="description">Especializado en mariscos y cocina mediterránea con un ambiente acogedor.</p>
+                              <p><strong>Teléfono:</strong> +57 311 4808890</p>
+                              <p><strong>Dirección:</strong> Cra. 10 #1 Sur-324 Vereda La Balsa</p>
+                              <p><strong>Rango de Precios:</strong> $12.000 - $107.000</p>
+                              <p><strong>Horarios:</strong> Lunes a sábado 12pm a 10pm</p>
+                            </div>
+                        </a>
+
+                        <a href="https://www.laspuertasrestaurante.co/" class="store-card">
+                            <div class="store-card-image">
+                              <img src="https://lh3.googleusercontent.com/p/AF1QipMbMSwE0zpdwwAqKMHMB0iHPWFIIIFpU02TLFn_=s1360-w1360-h1020-rw" alt="Las Puertas">
+                            </div>
+                            <div class="store-card-content">
+                              <h3>Las Puertas Restaurante</h3>
+                              <p class="description">Restaurante con una propuesta gastronómica innovadora y ambiente elegante.</p>
+                              <p><strong>Teléfono:</strong> +57 300 6235391</p>
+                              <p><strong>Dirección:</strong> Barrio Los Chilacos, Cl. 21a #5-36</p>
+                              <p><strong>Rango de Precios:</strong> $20,000-$30,000</p>
+                              <p><strong>Horarios:</strong> Martes a domingo 1pm a 11pm</p>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <!-- Paper 3 -->
+            <div id="p4" class="paper">
+                <div class="front">
+                    <div id="f4" class="front-content">
+                        <a href="https://fontanarcentrocomercial.com/escape-game/" class="store-card reverse">
+                            <div class="store-card-image">
+                              <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRK9XnsimP6d2HMxsiwaTZaHW6QyIvUzsEJ7g&s" alt="Escape Game">
+                            </div>
+                            <div class="store-card-content">
+                              <h3>Escape Game</h3>
+                              <p class="description">Escape room divertido para toda la familia.</p>
+                              <p><strong>Dirección:</strong> Carrera 2 #10-50, Chía</p>
+                              <p><strong>Rango de Precios:</strong> $25.000-$55.000</p>
+                              <p><strong>Horarios:</strong> Viernes, Sábado y Domingo:  1:00 pm a 8:00pm.</p>
+                            </div>
+                        </a>
+
+                        <a href="https://www.andrescarnederes.com/" class="store-card">
+                            <div class="store-card-image">
+                            <img src="https://lh3.googleusercontent.com/p/AF1QipOx5LvN4obvA10dYHMuj9TfujAgDU0tLaLcyF-2=s1360-w1360-h1020-rw" alt="Andrés Carne de Res">
+                            </div>
+                            <div class="store-card-content">
+                              <h3>Andrés Carne de Res</h3>
+                              <p class="description">Restaurante emblemático que combina gastronomía, música y arte en un ambiente único.</p>
+                              <p><strong>Teléfono:</strong> +57 1 8612233</p>
+                              <p><strong>Dirección:</strong> Calle 3 #11A-56, Chía</p>
+                              <p><strong>Rango de Precios:</strong> $100.000 en adelante</p>
+                              <p><strong>Horarios:</strong> Miércoles a domingo 12pm a 1am</p>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+                <div class="back">
+                    <div id="b4" class="back-content">
+                        <a href="https://teatrofahrenheit451.com/" class="store-card reverse">
+                            <div class="store-card-image">
+                              <img src="https://elperiodicodechia.com/wp-content/uploads/2020/08/12-teatro-digital-1024x683.jpg" alt="Teatro Fahrenheint 451">
+                            </div>
+                            <div class="store-card-content">
+                              <h3>Teatro Fahrenheint 451</h3>
+                              <p class="description">Espacio cultural que promueve el teatro contemporáneo, talleres y eventos artísticos.</p>
+                              <p><strong>Teléfono:</strong> +57 313 882 0408</p>
+                              <p><strong>Dirección:</strong> Cra 4 #9-22 barrio El Campincito</p>
+                              <p><strong>Rango de Precios:</strong> Depende</p>
+                              <p><strong>Horarios:</strong> Según programación</p>
+                            </div>
+                        </a>
+
+                        <a href="https://www.tostaduriacolegiodecafe.com/" class="store-card">
+                            <div class="store-card-image">
+                              <img src="https://lh3.googleusercontent.com/p/AF1QipNdfECX7A3rmwx_aWVRjEakKRqd8Vm779QpyHwh=s1360-w1360-h1020-rw" alt="Bruna Café">
+                            </div>
+                            <div class="store-card-content">
+                              <h3>Bruna Café</h3>
+                              <p class="description">Fusión de galería, café y tienda de cuero con productos artesanales y talleres creativos.</p>
+                              <p><strong>Teléfono:</strong> +57 300 7533155</p>
+                              <p><strong>Dirección:</strong> Av. Pradilla #6-59E</p>
+                              <p><strong>Rango de Precios:</strong> $10,000-20,000</p>
+                              <p><strong>Horarios:</strong> Lunes a sábado 10am a 7pm</p>
+                            </div>
+                          </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Next Button -->
+        <button id="next-btn">
+            <i class="fas fa-arrow-circle-right"></i>
+        </button>
+    </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,170 @@
+{% extends 'Base/base.html' %}
+{% block title %}Dashboard Explorador{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='Estilos/login.css') }}">
+
+<div class="dashboard">
+  <!-- ===== SIDEBAR IZQUIERDA ===== -->
+  <div class="sidebar">
+    <div class="brand">
+      <img src="{{ url_for('static', filename='Imagenes/LogoSencillo.png') }}" alt="Logo">
+      <h2>Panel Explorador</h2>
+      <p class="welcome-text">Bienvenido, {{ user.username }}</p>
+    </div>
+
+    <a href="#" class="sidebar-btn active" data-section="descubrir">Descubrir lugares</a>
+    <a href="#" class="sidebar-btn" data-section="favoritos">Mis favoritos</a>
+    <a href="#" class="sidebar-btn" data-section="actividad">Actividad</a>
+    <a href="#" class="sidebar-btn" data-section="perfil">Mi perfil</a>
+    <a href="{{ url_for('logout') }}">Cerrar sesión</a>
+  </div>
+
+  <!-- ===== CONTENIDO PRINCIPAL ===== -->
+  <div class="main-content">
+    <h1 id="section-title">Descubrir lugares</h1>
+
+    <!-- === SECCIÓN DESCUBRIR === -->
+    <div id="descubrir" class="content-section active">
+      <div class="content-card pastel-sky">
+        <h2>Lugares recomendados para ti</h2>
+        <p>Basado en tus intereses y actividad reciente.</p>
+        <div class="grid-lugares">
+          <div class="store-card">
+            <img src="{{ url_for('static', filename='Imagenes/CentroChia.jpg') }}" alt="Centro Chía" class="img-uniforme">
+            <h3>Centro Chía</h3>
+            <p>Centro comercial con zonas verdes y entretenimiento.</p>
+            <a href="https://www.centrochia.com.co/" target="_blank" class="btn btn-primary">Visitar</a>
+          </div>
+
+          <div class="store-card">
+            <img src="{{ url_for('static', filename='Imagenes/AndresDC.jpg') }}" alt="Andrés DC" class="img-uniforme">
+            <h3>Andrés Carne de Res</h3>
+            <p>Restaurante emblemático de Chía con ambiente festivo.</p>
+            <a href="https://www.andrescarnederes.com/" target="_blank" class="btn btn-primary">Visitar</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- === SECCIÓN FAVORITOS === -->
+    <div id="favoritos" class="content-section">
+      <div class="content-card pastel-lavender">
+        <h2>Mis lugares favoritos</h2>
+        <table class="data-table wide">
+          <thead>
+            <tr>
+              <th>Nombre</th>
+              <th>Categoría</th>
+              <th>Última visita</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>La Hamburguesería</td>
+              <td>Gastronomía</td>
+              <td>03/11/2025</td>
+              <td><button class="btn small btn-secondary">Eliminar</button></td>
+            </tr>
+            <tr>
+              <td>Sabana Park</td>
+              <td>Entretenimiento</td>
+              <td>31/10/2025</td>
+              <td><button class="btn small btn-secondary">Eliminar</button></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- === SECCIÓN ACTIVIDAD === -->
+    <div id="actividad" class="content-section">
+      <div class="content-card pastel-green">
+        <h2>Historial de actividad</h2>
+        <p>Consulta tus visitas recientes y el tiempo invertido explorando lugares de Chía.</p>
+        <canvas id="graficoActividad"></canvas>
+      </div>
+
+      <div class="content-card pastel-sun">
+        <h3>Resumen de la semana</h3>
+        <ul>
+          <li><strong>Visitas totales:</strong> 14</li>
+          <li><strong>Lugar más visitado:</strong> Centro Chía</li>
+          <li><strong>Día con más actividad:</strong> Sábado</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- === SECCIÓN PERFIL === -->
+    <div id="perfil" class="content-section">
+      <div class="content-card pastel-blue">
+        <h2>Mi perfil</h2>
+        <p><strong>Nombre:</strong> {{ user.username }}</p>
+        <p><strong>Correo:</strong> {{ user.email }}</p>
+        <p><strong>Miembro desde:</strong> {{ user.fecha_registro }}</p>
+        <button class="btn btn-primary">Editar perfil</button>
+      </div>
+
+      <div class="content-card pastel-pink">
+        <h3>Preferencias</h3>
+        <p>Selecciona tus intereses para obtener mejores recomendaciones:</p>
+        <form>
+          <label><input type="checkbox" checked> Gastronomía</label><br>
+          <label><input type="checkbox"> Entretenimiento</label><br>
+          <label><input type="checkbox"> Cultura</label><br>
+          <label><input type="checkbox"> Naturaleza</label><br>
+          <button class="btn btn-primary" type="submit">Guardar cambios</button>
+        </form>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- === SCRIPT PARA CAMBIAR SECCIONES === -->
+<script>
+  document.querySelectorAll('.sidebar-btn').forEach(btn => {
+    btn.addEventListener('click', e => {
+      e.preventDefault();
+      document.querySelectorAll('.sidebar-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+
+      const section = btn.dataset.section;
+      document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
+      document.getElementById(section).classList.add('active');
+
+      const title = document.getElementById('section-title');
+      if (section === 'descubrir') title.textContent = 'Descubrir lugares';
+      else if (section === 'favoritos') title.textContent = 'Mis lugares favoritos';
+      else if (section === 'actividad') title.textContent = 'Mi actividad';
+      else title.textContent = 'Perfil de explorador';
+    });
+  });
+</script>
+
+<!-- === CHART.JS PARA LA GRÁFICA DE ACTIVIDAD === -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  const ctx = document.getElementById('graficoActividad');
+  if (ctx) {
+    new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'],
+        datasets: [{
+          label: 'Visitas por día',
+          data: [2, 3, 1, 4, 2, 5, 3],
+          borderWidth: 2,
+          tension: 0.3
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: { legend: { display: false } },
+        scales: { y: { beginAtZero: true } }
+      }
+    });
+  }
+</script>
+{% endblock %}
