@@ -16,7 +16,7 @@ body{margin:0;background:linear-gradient(180deg,#f7f8fb,#fff);color:#0b2540}
 .logoN{height:80px;width:90px;object-fit:fill}
 .brand-name{font-weight:780;color:var(--primary-900)}
 .nav-actions{display:flex;align-items:center;gap:10px}
-.container{padding-top:100px;max-width:980px;margin:0 auto;padding-left:16px;padding-right:16px}
+.container{padding-top:80px;max-width:980px;margin:0 auto;padding-left:16px;padding-right:16px}
 .card{background:white;border-radius:12px;padding:24px;box-shadow:0 8px 20px rgba(18,38,63,0.06);margin-bottom:20px}
 .auth-card{max-width:420px;margin:40px auto}
 .auth-card h2{color:var(--primary-900);margin-top:0}
@@ -40,19 +40,19 @@ input[type=text],input[type=email],input[type=password]{width:100%;padding:10px 
   display: flex;
   height: 100vh;
   width: 100%;
-  margin-top: 80px; /* Evita superposición con topbar */
+  margin-top: 10px; /* Evita superposición con topbar */
   background: #f9fafc;
 }
 
 /* === SIDEBAR IZQUIERDA === */
 .sidebar {
-  width: 300px;
+  width: 260px;
   background: #21295C;
   color: #fff;
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 30px 20px;
+  padding: 30px 10px;
   position: fixed;
   top: 80px;
   left: 30px; /* separada del borde */
@@ -111,13 +111,13 @@ input[type=text],input[type=email],input[type=password]{width:100%;padding:10px 
 
 /* === CONTENIDO PRINCIPAL === */
 .main-content {
-  margin-left: 380px; /* espacio acorde a sidebar */
+ 
   flex: 1;
-  padding: 60px 80px;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
 }
+
 
 .main-content h1 {
   color: var(--primary-900);
@@ -196,7 +196,8 @@ input[type=text],input[type=email],input[type=password]{width:100%;padding:10px 
   opacity: 0;
   transform: translateY(10px);
   transition: all 0.3s ease-in-out;
-  width: 100%;
+
+  width:auto;
 }
 
 .content-section.active {
@@ -224,4 +225,85 @@ input[type=text],input[type=email],input[type=password]{width:100%;padding:10px 
   .content-card {
     padding: 20px;
   }
+}
+
+/* === AJUSTES DASHBOARD ADMIN === */
+.main-content {
+  margin-left: 290px; /* antes 310px, reduce el espacio */
+  padding: 30px;
+}
+
+/* === TABLAS MEJORADAS === */
+.table-container {
+  width: 100%;
+  overflow-x: auto; /* scroll horizontal si se desborda */
+  margin-top: 1rem;
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 800px; /* fuerza ancho mínimo cómodo */
+  font-size: 15px;
+}
+
+.data-table thead {
+  background: var(--bg);
+}
+
+.data-table th,
+.data-table td {
+  padding: 14px 18px;
+  border-bottom: 1px solid #e5e7eb;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.data-table th {
+  color: var(--primary-900);
+  font-weight: 600;
+  background-color: #f1f5f9;
+}
+
+.data-table tr:nth-child(even) {
+  background-color: #f9fafb;
+}
+
+.data-table tr:hover {
+  background-color: #eef2ff;
+}
+
+.data-table td {
+  color: #1e293b;
+}
+
+/* === GRÁFICAS Y TARJETAS === */
+.chart-card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  margin-top: 30px;
+}
+
+.stats-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.2rem;
+}
+
+.stat-card {
+  flex: 1;
+  min-width: 200px;
+  background: #fff;
+  border-radius: 12px;
+  padding: 1rem;
+  text-align: center;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.08);
+}
+
+.stat-number {
+  font-size: 2rem;
+  font-weight: 700;
+  margin-top: 0.5rem;
 }
