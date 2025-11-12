@@ -12,20 +12,23 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='Estilos/estiloschia.css') }}">
       <!-- CSS del libro  -->
     <link rel="stylesheet" href="{{ url_for('static', filename='Estilos/estiloslibro.css') }}">
+    <link rel="icon" href="static/Imagenes/LogoAzulSinFondo.ico" sizes="100x100">
 
    <!-- Fuentes  -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
     <script src="//code.jivosite.com/widget/2HA99NJkUt" async></script>
-</head>
+  </head>
+
+    <script>
+    // Evita mostrar contenido almacenado en el historial al retroceder
+    window.addEventListener("pageshow", function (event) {
+        if (event.persisted || (window.performance && window.performance.getEntriesByType("navigation")[0].type === "back_forward")) {
+        window.location.reload();
+        }
+    });
+    </script>
 
 <body>
-
-    <!-- Floating WhatsApp -->
-    <a href="https://w.app/mjxqlt" class="whatsapp-float" target="_blank" rel="noopener noreferrer" aria-label="Contactar por WhatsApp">
-        <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" alt="WhatsApp" width="28" height="28">
-        <span style="margin-left:8px;">¡Contáctanos!</span>
-    </a>
-
     <!-- Header -->
     <header class="site-header" role="banner" id="site-header">
         <div class="brand">
@@ -36,13 +39,35 @@
         </div>
 
         <nav class="nav-actions" role="navigation" aria-label="Principal">
+        {% if username %}
+            <!-- Mostrar saludo y redirección al dashboard según el rol -->
+            {% if role == 'Administrador' %}
+            <a href="{{ url_for('admin_dashboard') }}" class="btn btn-ghost" title="Ir al panel">
+                <i class="fas fa-user-circle"></i> Hola, {{ username }}
+            </a>
+            <a href="{{ url_for('logout') }}" class="btn btn-ghost">Cerrar sesión</a>
+            {% elif role == 'Emprendedor' %}
+            <a href="{{ url_for('emprendedor_dashboard') }}" class="btn btn-ghost" title="Ir al panel">
+                <i class="fas fa-user-circle"></i> Hola, {{ username }}
+            </a>
+            <a href="{{ url_for('logout') }}" class="btn btn-ghost">Cerrar sesión</a>
+            {% elif role == 'Explorador' %}
+            <a href="{{ url_for('explorador_dashboard') }}" class="btn btn-ghost" title="Ir al panel">
+                <i class="fas fa-user-circle"></i> Hola, {{ username }}
+            </a>
+            <a href="{{ url_for('logout') }}" class="btn btn-ghost">Cerrar sesión</a>
+            {% endif %}
+        {% else %}
+            <!-- Mostrar botón de inicio de sesión si no hay usuario -->
             <a href="/BotonLog" class="btn btn-ghost" title="Iniciar sesión">
-                <i class="fas fa-user-circle"></i> Iniciar sesión
+            <i class="fas fa-user-circle"></i> Iniciar sesión
             </a>
-            <a href="https://www.canva.com/design/DAGymtCwjgs/QwDdKz6dOH345ED6543CPA/view?utm_content=DAGymtCwjgs&utm_campaign=designshare&utm_medium=link2&utm_source=uniquelinks&utlId=ha273b541e8"
-               class="btn btn-primary" target="_blank" rel="noopener">
-                <i class="fas fa-star"></i> Conoce Nuestros Planes
-            </a>
+        {% endif %}
+
+        <a href="https://www.canva.com/design/DAGymtCwjgs/QwDdKz6dOH345ED6543CPA/view?utm_content=DAGymtCwjgs&utm_campaign=designshare&utm_medium=link2&utm_source=uniquelinks&utlId=ha273b541e8"
+            class="btn btn-primary" target="_blank" rel="noopener">
+            <i class="fas fa-star"></i> Conoce Nuestros Planes Emprendedor!
+        </a>
         </nav>
     </header>
 
@@ -63,12 +88,12 @@
 
                 <!-- categorías -->
                 <div class="button-container fade-in delay-3">
-                    <button class="category-button comida" onclick="location.href='/Restaurantes'">🍽️ Comida y Bebida <span>Restaurantes, cafés y bares</span></button>
-                    <button class="category-button arte" onclick="location.href='/Chia/Arte'">🎨 Arte y Cultura <span>Museos, galerías y eventos</span></button>
-                    <button class="category-button nat" onclick="location.href='/Chia/Naturaleza'">🌳 Naturaleza <span>Parques y espacios al aire libre</span></button>
-                    <button class="category-button ocio" onclick="location.href='/Ocio'">🎭 Ocio y Entretenimiento <span>Zona Gamer</span></button>
-                    <button class="category-button depo" onclick="location.href='/Chia/Deportes'">⚽ Deportes <span>Actividades deportivas</span></button>
-                    <button class="category-button shop" onclick="location.href='/Chia/Shopping'">🛍️ Compras <span>Centros comerciales y tiendas</span></button>
+                    <button class="category-button comida" onclick="location.href='/comida'">🍽️ Comida y Bebida <span>Restaurantes, cafés y bares</span></button>
+                    <button class="category-button arte" onclick="location.href='/cultura'">🎨 Arte y Cultura <span>Museos, galerías y eventos</span></button>
+                    <button class="category-button nat" onclick="location.href='/naturaleza'">🌳 Naturaleza <span>Parques y espacios al aire libre</span></button>
+                    <button class="category-button ocio" onclick="location.href='/ocio'">🎭 Ocio y Entretenimiento <span>Zona Gamer</span></button>
+                    <button class="category-button depo" onclick="location.href='/deportes'">⚽ Deportes <span>Actividades deportivas</span></button>
+                    <button class="category-button shop" onclick="location.href='/compras'">🛍️ Compras <span>Centros comerciales y tiendas</span></button>
                 </div>
             </div>
 
@@ -391,4 +416,3 @@
     </script>
 </body>
 </html>
-

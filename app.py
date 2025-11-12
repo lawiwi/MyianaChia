@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, session, flash
+from flask import Flask, render_template, request, redirect, url_for, session, flash, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
@@ -7,6 +7,7 @@ import os
 from datetime import datetime
 from dotenv import load_dotenv
 from sqlalchemy import func
+from werkzeug.utils import secure_filename
 load_dotenv()
 
 app = Flask(__name__, template_folder='Templates')
@@ -62,31 +63,32 @@ class Emprendedor(db.Model):
     segundo_apellido = db.Column(db.String(50))
     fecha_nacimiento = db.Column(db.Date)
     telefono = db.Column(db.String(20))
-
-    # Datos de la empresa
-    nombre_emprendimiento = db.Column(db.String(100), nullable=False)
-    nit = db.Column(db.String(30), unique=True, nullable=False)
-    clasificacion = db.Column(db.String(50))  # Ej: "Comida", "Ocio", "Hospedaje"
-    zona = db.Column(db.String(100))
-    ubicacion = db.Column(db.String(100))
-    plan = db.Column(db.String(50), default='Sin Plan')
+    empresas = db.relationship('Empresa', backref='emprendedor', lazy=True)
 
 class Empresa(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    nombre = db.Column(db.String(100), nullable=False)
+    nombre_emprendimiento = db.Column(db.String(100), nullable=False)
+    nit = db.Column(db.String(30), unique=True, nullable=False)
     clasificacion = db.Column(db.String(50))
+    plan = db.Column(db.String(50), default='Sin Plan')
     zona = db.Column(db.String(100))
     ubicacion = db.Column(db.String(100))
     descripcion = db.Column(db.Text)
     url = db.Column(db.String(200))
+    rango_precios = db.Column(db.String(50))          # nuevo: ejemplo "$ - $$ - $$$"
+    imagen_filename = db.Column(db.String(200))       # nuevo: nombre de archivo en static/uploads/
+    
     emprendedor_id = db.Column(db.Integer, db.ForeignKey('emprendedor.id'))
     visitas = db.relationship('Visita', backref='empresa', lazy=True)
+    favoritos = db.relationship('Favorito', backref='empresa', lazy=True)  # relación
 
 class Favorito(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     explorador_id = db.Column(db.Integer, db.ForeignKey('explorador.id'), nullable=False)
     empresa_id = db.Column(db.Integer, db.ForeignKey('empresa.id'), nullable=False)
     fecha_guardado = db.Column(db.DateTime, default=datetime.utcnow)
+
+    explorador = db.relationship('Explorador', backref='favoritos')
 
 class Visita(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -181,11 +183,6 @@ def register():
                 segundo_apellido=request.form.get('segundo_apellido_emp', '').strip(),
                 fecha_nacimiento=fecha_nacimiento,
                 telefono=request.form.get('telefono_emp', '').strip(),
-                nombre_emprendimiento=request.form.get('nombre_emprendimiento', '').strip(),
-                nit=request.form.get('nit', '').strip(),
-                clasificacion=request.form.get('clasificacion', '').strip(),
-                ubicacion=request.form.get('ubicacion', '').strip(),
-                zona=request.form.get('zona', '').strip()
             )
             db.session.add(nuevo_emprendedor)
 
@@ -238,8 +235,152 @@ def login():
 
     return render_template('Base/login.html')
 
+@app.route('/emprendedor/dashboard')
+def emprendedor_dashboard():
+    user_id = session.get('user_id')
+    if not user_id or session.get('role') != 'Emprendedor':
+        flash('Por favor inicia sesión como emprendedor.', 'warning')
+        return redirect(url_for('login'))
+
+    # Buscar el emprendedor asociado al usuario actual
+    emprendedor = Emprendedor.query.filter_by(user_id=user_id).first()
+
+    if not emprendedor:
+        flash('No se encontró información de emprendedor.', 'danger')
+        return redirect(url_for('login'))
+
+    # Verificar si ya tiene una empresa asociada
+    empresa = Empresa.query.filter_by(emprendedor_id=emprendedor.id).first()
+
+    # Si no existe, lo mandamos al formulario para registrar su empresa
+    if not empresa:
+        flash('Por favor completa la información de tu empresa antes de continuar.', 'info')
+        return redirect(url_for('registrar_empresa'))
+
+    acciones = db.session.query(LogAccion.accion, db.func.count(LogAccion.id))\
+        .filter_by(user_id=user_id)\
+        .group_by(LogAccion.accion)\
+        .all()
+
+    acciones_labels = [a[0] for a in acciones] or ["Sin registros"]
+    acciones_values = [a[1] for a in acciones] or [0]
+    favoritos_count = Favorito.query.filter_by(empresa_id=empresa.id).count()
+
+    # Si ya tiene empresa, renderizamos el dashboard normal
+    return render_template(
+        'Emprededores/dashboard_emprededor.html', 
+        emprendedor=emprendedor, empresa=empresa,
+        acciones_labels=acciones_labels,
+        acciones_values=acciones_values,
+        favoritos_count=favoritos_count
+        )
+
+@app.route('/registrar_empresa', methods=['GET', 'POST'])
+def registrar_empresa():
+    user_id = session.get('user_id')
+
+    if not user_id:
+        flash('Por favor inicia sesión para continuar.', 'warning')
+        return redirect(url_for('login'))
+
+    emprendedor = Emprendedor.query.filter_by(user_id=user_id).first()
+
+    if not emprendedor:
+        flash('No se encontró el perfil del emprendedor.', 'danger')
+        return redirect(url_for('login'))
+
+    # Verificar si ya tiene empresa
+    empresa_existente = Empresa.query.filter_by(emprendedor_id=emprendedor.id).first()
+    if empresa_existente:
+        flash('Ya tienes una empresa registrada.', 'info')
+        return redirect(url_for('emprendedor_dashboard'))
+
+    if request.method == 'POST':
+        nombre_emprendimiento = request.form.get('nombre_emprendimiento')
+        clasificacion = request.form.get('clasificacion')
+        nit = request.form.get('nit')
+        zona = request.form.get('zona')
+        ubicacion = request.form.get('ubicacion')
+        descripcion = request.form.get('descripcion')
+        rango_precios = request.form.get('rango_precios')
+        url_empresa = request.form.get('url')
+        imagen = request.files.get('imagen')
+
+        # Guardar imagen
+        filename = None
+        if imagen and imagen.filename:
+            filename = secure_filename(imagen.filename)
+            upload_path = os.path.join(app.static_folder, 'Empresas', filename)
+            imagen.save(upload_path)
+
+        nueva_empresa = Empresa(
+            nombre_emprendimiento=nombre_emprendimiento,
+            nit=nit,
+            clasificacion=clasificacion,
+            zona=zona,
+            ubicacion=ubicacion,
+            descripcion=descripcion,
+            rango_precios=rango_precios,
+            url=url_empresa,
+            imagen_filename=filename,
+            emprendedor_id=emprendedor.id
+        )
+
+        db.session.add(nueva_empresa)
+        db.session.commit()
+
+        # Auditoría
+        log = LogAccion(
+            accion="Creación de Empresa",
+            entidad_id=nueva_empresa.id,
+            detalles=f"El emprendedor {emprendedor.id} registró la empresa '{nombre_emprendimiento}'."
+        )
+        db.session.add(log)
+        db.session.commit()
+
+        flash('Tu empresa ha sido registrada correctamente.', 'success')
+        return redirect(url_for('emprendedor_dashboard'))
+
+    return render_template('Emprededores/registrar_empresa.html', emprendedor=emprendedor)
+
+@app.route('/editar_empresa/<int:id>', methods=['POST'])
+def editar_empresa(id):
+    empresa = Empresa.query.get_or_404(id)
+    datos_antes = empresa.__dict__.copy()
+
+    empresa.nombre_emprendimiento = request.form.get('nombre_emprendimiento', empresa.nombre_emprendimiento)
+    empresa.nit = request.form.get('nit', empresa.nit)
+    empresa.zona = request.form.get('zona', empresa.zona)
+    empresa.ubicacion = request.form.get('ubicacion', empresa.ubicacion)
+    empresa.plan = request.form.get('plan', empresa.plan)
+    empresa.rango_precios = request.form.get('rango_precios', empresa.rango_precios)
+    empresa.clasificacion = request.form.get('clasificacion', empresa.clasificacion)
+
+    db.session.commit()
+
+    # Auditoría
+    cambios = []
+    for campo in ['nombre_emprendimiento', 'nit', 'zona', 'ubicacion', 'plan', 'clasificacion','rango_precios']:
+        if datos_antes.get(campo) != getattr(empresa, campo):
+            cambios.append(f"{campo}: '{datos_antes.get(campo)}' → '{getattr(empresa, campo)}'")
+
+    detalles = ", ".join(cambios) if cambios else "Sin cambios detectados"
+
+    log = LogAccion(
+        accion="Edición Emprendedor",
+        entidad_id=empresa.id,
+        user_id=session.get('user_id'),
+        detalles=f"Actualizó su empresa '{empresa.nombre_emprendimiento}'. {detalles}"
+    )
+    db.session.add(log)
+    db.session.commit()
+
+    flash('Información actualizada correctamente.', 'success')
+    return redirect(url_for('emprendedor_dashboard'))
+
 @app.route('/logout')
 def logout():
+    session.clear()
     session.pop('user_id', None)
     flash('Has cerrado sesión', 'info')
     return redirect(url_for('login'))
@@ -266,6 +407,77 @@ def crear_admin():
     db.session.commit()
     return "Usuario administrador creado correctamente: admin / admin123"
 
+# Catálogo por clasificación
+@app.route('/catalogo/<string:clasificacion>')
+def catalogo_clasificacion(clasificacion):
+    # normalizar la clasificación si hace falta
+    empresas = Empresa.query.filter(func.lower(Empresa.clasificacion) == clasificacion.lower()).all()
+    # Si quieres paginar, aquí es donde lo harías
+    return render_template('Catalogo/catalogo_list.html', empresas=empresas, clasificacion=clasificacion)
+
+# Toggle favorito (guardar / quitar)
+@app.route('/favorito/toggle', methods=['POST'])
+def toggle_favorito():
+    if 'user_id' not in session:
+        return jsonify({'ok': False, 'msg': 'Necesitas iniciar sesión'}), 401
+
+    explorador = Explorador.query.filter_by(user_id=session['user_id']).first()
+    if not explorador:
+        return jsonify({'ok': False, 'msg': 'Inicia sesión como explorador para guardar sus sitios favoritos!'}), 400
+
+    empresa_id = request.json.get('empresa_id') or request.form.get('empresa_id')
+    if not empresa_id:
+        return jsonify({'ok': False, 'msg': 'Falta empresa_id'}), 400
+
+    empresa = Empresa.query.get(empresa_id)
+    if not empresa:
+        return jsonify({'ok': False, 'msg': 'Empresa no encontrada'}), 404
+
+    fav = Favorito.query.filter_by(explorador_id=explorador.id, empresa_id=empresa.id).first()
+    if fav:
+        # quitar favorito
+        db.session.delete(fav)
+        action = 'removed'
+    else:
+        # crear favorito
+        fav = Favorito(explorador_id=explorador.id, empresa_id=empresa.id)
+        db.session.add(fav)
+        action = 'added'
+    db.session.commit()
+
+    # devolver nuevo conteo de favoritos
+    fav_count = Favorito.query.filter_by(empresa_id=empresa.id).count()
+    return jsonify({'ok': True, 'action': action, 'favoritos_count': fav_count})
+
+# Mis Favoritos (pestaña del explorador)
+@app.route('/mis_favoritos')
+def mis_favoritos():
+    if 'user_id' not in session:
+        flash('Inicia sesión para ver tus favoritos', 'warning')
+        return redirect(url_for('login'))
+
+    explorador = Explorador.query.filter_by(user_id=session['user_id']).first()
+    if not explorador:
+        flash('Perfil explorador no encontrado', 'danger')
+        return redirect(url_for('login'))
+
+    favoritos = Favorito.query.filter_by(explorador_id=explorador.id).join(Empresa).all()
+    # entregamos la lista de empresas (podemos mapear a empresa directamente)
+    empresas = [f.empresa for f in favoritos]
+    return render_template('Explorador/mis_favoritos.html', empresas=empresas)
+
+@app.after_request
+def add_header(response):
+    response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate, private, max-age=0"
+    response.headers["Pragma"] = "no-cache"
+    response.headers["Expires"] = "0"
+    return response
+
+@app.route("/")
+def chiaentre():
+    username = session.get('username')
+    role = session.get('role')
+    return render_template('Base/Home.html', username=username, role=role)
 
 if __name__ == '__main__':
     # Crear DB si no existe (útil para desarrollo local)
@@ -273,20 +485,21 @@ if __name__ == '__main__':
         db.create_all()
     app.run(debug=True) 
 
-
-@app.route("/")
-def chiaentre():
-    return render_template('Base/Home.html')
-
 # -------------------------------------------------------------------------------------------------------------------------------------------------------------------
 from collections import Counter
 
 @app.route('/admin_dashboard')
 def admin_dashboard():
+    if 'user_id' not in session or session.get('role') != 'Administrador':
+        flash("Tu sesión ha expirado. Inicia sesión nuevamente.", "warning")
+        return redirect(url_for('login'))
+    
     # Totales generales
     total_usuarios = User.query.count()
     total_exploradores = User.query.filter(func.lower(User.role) == 'explorador').count()
     total_emprendedores = User.query.filter(func.lower(User.role) == 'emprendedor').count()
+    username = session.get('username')
+    role = session.get('role')
 
     # Datos para la gráfica de roles
     roles_data = {
@@ -298,20 +511,21 @@ def admin_dashboard():
     exploradores = Explorador.query.all()
 
     # --- Datos para emprendedores ---
+    empresa = Empresa.query.all()
     emprendedores = Emprendedor.query.all()
     planes_posibles = ['Sin Plan','Valvanera', 'Castillo Marroquin', 'Diosa chia']
 
     logs = LogAccion.query.order_by(LogAccion.fecha.desc()).all()
 
     # Contar cuántos emprendedores hay por plan
-    planes = [e.plan if e.plan in planes_posibles else 'Sin plan' for e in emprendedores]
+    planes = [e.plan if e.plan in planes_posibles else 'Sin plan' for e in empresa]
     plan_counts = Counter(planes)
 
     labels_plan = planes_posibles
     values_plan = [plan_counts.get(p, 0) for p in labels_plan]
 
     # --- Gráfica de preferencias (Exploradores) ---
-    preferencias_posibles = ['Comida', 'Hospedaje', 'Ocio', 'Arte y Cultura', 'Naturaleza', 'Compras']
+    preferencias_posibles = ['Comida', 'Deportes', 'Ocio', 'Arte y Cultura', 'Naturaleza', 'Compras']
     preferencias = [exp.preferencias for exp in exploradores if exp.preferencias in preferencias_posibles]
     preferencias_count = Counter(preferencias)
 
@@ -335,6 +549,7 @@ def admin_dashboard():
         total_emprendedores=total_emprendedores,
         roles_data=roles_data,
         emprendedores=emprendedores,
+        empresa=empresa,
         exploradores=exploradores,
         labels_plan=labels_plan,
         values_plan=values_plan,
@@ -342,7 +557,9 @@ def admin_dashboard():
         values_pref=values_pref,
         logs=logs,
         acciones_labels=acciones_labels,
-        acciones_values=acciones_values 
+        acciones_values=acciones_values,
+        role=role,
+        username=username
     )
 
 # --- Ver detalles de un emprendimiento ---
@@ -364,15 +581,18 @@ def eliminar_emprendimiento(id):
     emprendimiento = Emprendedor.query.get_or_404(id)
     user = emprendimiento.user  # Obtiene el usuario asociado
 
+    for empresa in emprendimiento.empresas:
+        db.session.delete(empresa)
+
     # Registrar en auditoría antes de eliminar
     log = LogAccion(
         accion='Eliminación',
         entidad_id=user.id,
-        detalles=f'Se eliminó el usuario "{user.username}" asociado al emprendimiento "{emprendimiento.nombre_emprendimiento}".'
+        detalles=f'Se eliminó el emprendedor"{user.username}".'
     )
     db.session.add(log)
 
-    db.session.delete(user)  # Borra también el usuario
+    db.session.delete(user)
     db.session.commit()
 
     flash('Emprendimiento eliminado completamente.', 'success')
@@ -382,7 +602,7 @@ def eliminar_emprendimiento(id):
 # --- Editar emprendimiento ---
 @app.route('/editar_emprendimiento/<int:id>', methods=['POST'])
 def editar_emprendimiento(id):
-    e = Emprendedor.query.get_or_404(id)
+    e = Empresa.query.get_or_404(id)
 
     # Guardar datos anteriores para comparar
     datos_antes = {
@@ -414,7 +634,7 @@ def editar_emprendimiento(id):
 
     detalles = ", ".join(cambios) if cambios else "Sin cambios detectados"
 
-    # 🔹 Registrar auditoría
+    # Registrar auditoría
     log = LogAccion(
         accion="Edición de Emprendedor",
         entidad_id=e.id,
@@ -425,6 +645,7 @@ def editar_emprendimiento(id):
 
     flash('Información actualizada correctamente.', 'success')
     return redirect(url_for('admin_dashboard'))
+
 
 # --- Eliminar explorador ---
 @app.route('/eliminar_explorador/<int:id>', methods=['POST'])
@@ -445,6 +666,7 @@ def eliminar_explorador(id):
 
     flash('Explorador eliminado completamente.', 'success')
     return redirect(url_for('admin_dashboard'))
+
 
 
 # EDITAR EXPLORADOR
@@ -510,36 +732,49 @@ def editar_explorador(id):
     return redirect(url_for('admin_dashboard'))
 
 
-@app.route('/emprendedor_dashboard')
-def emprendedor_dashboard():
-    user = User.query.get(session['user_id'])
-    return render_template('Emprededores/dashboard_emprededor.html', user=user)
-
 @app.route('/explorador_dashboard')
 def explorador_dashboard():
-    user = User.query.get(session['user_id'])
-    return render_template('Explorador/dashboard_explorador.html', user=user)
+    if 'user_id' not in session or session.get('role') != 'Explorador':
+        flash('Debes iniciar sesión como explorador.', 'warning')
+        return redirect(url_for('login'))
 
-@app.route("/Restaurantes")
-def chiacomida():
-    return render_template('Usuarios/Restaurantes.html')
+    user = User.query.get(session['user_id'])    
+    explorador = Explorador.query.filter_by(user_id=user.id).first()
+    #Obtener los favoritos reales del explorador
+    favoritos = Favorito.query.filter_by(explorador_id=explorador.id)\
+        .order_by(Favorito.fecha_guardado.desc()).all()
+    
+    return render_template('Explorador/dashboard_explorador.html', user=user, favoritos=favoritos)
 
-@app.route("/Arte")
-def chiaarte():
-    return render_template('Usuarios/Arte.html')
+@app.route('/eliminar_favorito/<int:fav_id>', methods=['POST'])
+def eliminar_favorito(fav_id):
+    if 'user_id' not in session or session.get('role') != 'Explorador':
+        flash('Debes iniciar sesión como explorador.', 'warning')
+        return redirect(url_for('login'))
 
-@app.route("/Deportes")
-def chiadeportes():
-    return render_template('Usuarios/Deportes.html')
+    favorito = Favorito.query.get_or_404(fav_id)
+    explorador = Explorador.query.filter_by(user_id=session['user_id']).first()
 
-@app.route("/Ocio")
-def chiaocio():
-    return render_template('Usuarios/Ocio.html')
+    # Seguridad: solo puede borrar sus propios favoritos
+    if favorito.explorador_id != explorador.id:
+        flash('No puedes eliminar este favorito.', 'danger')
+        return redirect(url_for('explorador_dashboard'))
 
-@app.route("/Shopping")
-def chiashopping():
-    return render_template('Usuarios/Shopping.html')
+    db.session.delete(favorito)
+    db.session.commit()
+    flash('Lugar eliminado de tus favoritos.', 'success')
+    return redirect(url_for('explorador_dashboard'))
 
-@app.route("/Naturaleza")
-def chianatu():
-    return render_template('Usuarios/Recreacion.html')
+@app.route('/<string:categoria>')
+def comida(categoria):
+    # Busca case-insensitive
+    username = session.get('username')
+    role = session.get('role')
+    empresas = Empresa.query.filter(func.lower(Empresa.clasificacion) == categoria.lower()).all()
+
+    return render_template('Explorador/categoria.html',
+                           categoria=categoria,
+                           empresas=empresas,
+                           username=username,
+                           role=role)
+

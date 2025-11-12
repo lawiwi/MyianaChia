@@ -1,123 +1,113 @@
 {% extends 'Base/base.html' %}
-{% block title %}Dashboard Emprendedor{% endblock %}
-
+{% block title %}Panel del Emprendedor{% endblock %}
 {% block content %}
 <link rel="stylesheet" href="{{ url_for('static', filename='Estilos/login.css') }}">
 
 <div class="dashboard">
-  <!-- ===== SIDEBAR IZQUIERDA ===== -->
   <div class="sidebar">
     <div class="brand">
       <img src="{{ url_for('static', filename='Imagenes/logoazul.png') }}" alt="Logo">
       <h2>Panel Emprendedor</h2>
-      <p class="welcome-text">Bienvenido, {{ user.username }}</p>
+      <p class="welcome-text">Bienvenido, {{ session.get('username', 'Emprendedor') }}</p>
     </div>
 
-    <a href="#" class="sidebar-btn active" data-section="predicciones">Predicciones</a>
-    <a href="#" class="sidebar-btn" data-section="estadisticas">Estadísticas</a>
-    <a href="#" class="sidebar-btn" data-section="perfil">Mi Empresa</a>
+    <a href="#" class="sidebar-btn active" data-section="inicio">Inicio</a>
+    <a href="#" class="sidebar-btn" data-section="mis_datos">Mi Emprendimiento</a>
+    <a href="#" class="sidebar-btn" data-section="favoritos">Favoritos</a>
     <a href="{{ url_for('logout') }}">Cerrar sesión</a>
   </div>
 
-  <!-- ===== CONTENIDO PRINCIPAL ===== -->
   <div class="main-content">
-    <h1 id="section-title">Predicciones de visitas</h1>
+    <h1 id="section-title">Resumen General</h1>
 
-    <!-- === SECCIÓN PREDICCIONES === -->
-    <div id="predicciones" class="content-section active">
-      <div class="content-card pastel-sky">
-        <h2>Predicción semanal de visitas</h2>
-        <p>Visualiza el comportamiento estimado de tus visitas esta semana según los datos históricos.</p>
-        <canvas id="graficoPrediccion"></canvas>
-      </div>
-
-      <div class="content-card pastel-green">
-        <h3>Selecciona un día para ver detalles</h3>
-        <div class="btn-group">
-          <button class="btn small btn-primary">Lunes</button>
-          <button class="btn small btn-primary">Martes</button>
-          <button class="btn small btn-primary">Miércoles</button>
-          <button class="btn small btn-primary">Jueves</button>
-          <button class="btn small btn-primary">Viernes</button>
-          <button class="btn small btn-primary">Sábado</button>
-          <button class="btn small btn-primary">Domingo</button>
-        </div>
+    <!-- === SECCIÓN INICIO === -->
+    <div id="inicio" class="content-section active">
+      <div class="chart-card">
+        <h2>Resumen de Actividad</h2>
+        <canvas id="chartAcciones"></canvas>
       </div>
     </div>
 
-    <!-- === SECCIÓN ESTADÍSTICAS === -->
-    <div id="estadisticas" class="content-section">
-      <div class="content-card pastel-sun">
-        <h2>Resumen estadístico</h2>
-        <table class="data-table wide">
-          <thead>
-            <tr>
-              <th>Semana</th>
-              <th>Promedio de visitas</th>
-              <th>Día más activo</th>
-              <th>Variación (%)</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>Semana 43</td>
-              <td>85</td>
-              <td>Sábado</td>
-              <td>+12%</td>
-            </tr>
-            <tr>
-              <td>Semana 44</td>
-              <td>90</td>
-              <td>Domingo</td>
-              <td>+6%</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-
-      <div class="content-card pastel-lavender">
-        <h3>Recomendaciones</h3>
-        <ul>
-          <li>Refuerza la promoción los días de mayor flujo.</li>
-          <li>Considera ofertas especiales entre semana para equilibrar visitas.</li>
-        </ul>
-      </div>
-    </div>
-
-    <!-- === SECCIÓN PERFIL EMPRESA === -->
-    <div id="perfil" class="content-section">
-      <div class="content-card pastel-blue">
-        <h2>Información de tu empresa</h2>
-        <button class="btn btn-primary">Actualizar información</button>
-      </div>
-
-      <div class="content-card pastel-green">
-        <h3>Productos o servicios</h3>
-        <table class="data-table wide">
+    <!-- === SECCIÓN DATOS EMPRENDIMIENTO === -->
+    <div id="mis_datos" class="content-section">
+      <div class="chart-card">
+        <h2>Mi Emprendimiento</h2>
+        <table class="table table-bordered">
           <thead>
             <tr>
               <th>Nombre</th>
-              <th>Categoría</th>
-              <th>Precio</th>
-              <th>Acciones</th>
+              <th>NIT</th>
+              <th>Ubicación</th>
+              <th>Zona</th>
+              <th>Plan</th>
+              <th>Clasificación</th>
+              <th>Acción</th>
             </tr>
           </thead>
           <tbody>
             <tr>
-              <td>Accesorio ecológico</td>
-              <td>Moda sostenible</td>
-              <td>$45.000</td>
-              <td><button class="btn small btn-primary">Editar</button></td>
+              <td>{{ empresa.nombre_emprendimiento }}</td>
+              <td>{{ empresa.nit }}</td>
+              <td>{{ empresa.ubicacion or '-' }}</td>
+              <td>{{ empresa.zona or '-' }}</td>
+              <td>{{ empresa.plan or '-' }}</td>
+              <td>{{ empresa.clasificacion or '-' }}</td>
+              <td>
+                <button class="btn btn-warning btn-sm"
+                        onclick="abrirModalEditar('{{ empresa.id }}', '{{ empresa.nombre_emprendimiento }}', '{{ empresa.nit }}', '{{ empresa.zona }}', '{{ empresa.ubicacion }}', '{{ empresa.plan }}', '{{ empresa.clasificacion }}')">
+                        Editar
+                </button>
+              </td>
             </tr>
           </tbody>
         </table>
+      </div>
+    </div>
+
+    <!-- === SECCIÓN FAVORITOS === -->
+    <div id="favoritos" class="content-section">
+      <div class="chart-card">
+        <h2>Favoritos de tu Empresa</h2>
+        <p>Exploradores que han guardado tu empresa:</p>
+        <div class="favoritos-count">
+          <span>{{ favoritos_count }}</span>
+        </div>
       </div>
     </div>
   </div>
 </div>
 
-<!-- === SCRIPT PARA CAMBIAR SECCIONES Y TÍTULO === -->
+<!-- === SCRIPTS === -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
+  // === GRÁFICA DE ACCIONES ===
+  (() => {
+    const ctx = document.getElementById('chartAcciones');
+    const labels = {{ acciones_labels|tojson }};
+    const values = {{ acciones_values|tojson }};
+    const maxY = Math.max(...values);
+    const suggestedMax = maxY + maxY * 0.2;
+
+    new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: labels,
+        datasets: [{
+          label: 'Acciones realizadas',
+          data: values,
+          backgroundColor: ['#7BA1CD', '#ffb703', '#fb8500']
+        }]
+      },
+      options: {
+        scales: {
+          y: { beginAtZero: true, suggestedMax: suggestedMax }
+        },
+        plugins: { legend: { display: false } }
+      }
+    });
+  })();
+
+  // === CAMBIO DE SECCIONES ===
   document.querySelectorAll('.sidebar-btn').forEach(btn => {
     btn.addEventListener('click', e => {
       e.preventDefault();
@@ -129,10 +119,45 @@
       document.getElementById(section).classList.add('active');
 
       const title = document.getElementById('section-title');
-      if (section === 'predicciones') title.textContent = 'Predicciones de visitas';
-      else if (section === 'estadisticas') title.textContent = 'Estadísticas de rendimiento';
-      else title.textContent = 'Perfil de tu empresa';
+      if (section === 'favoritos') title.textContent = 'Favoritos de tu Empresa';
+      else if (section === 'mis_datos') title.textContent = 'Perfil de tu Empresa';
+      else title.textContent = 'Resumen General';
     });
   });
 </script>
+
+<style>
+  .dashboard { display: flex; }
+  .sidebar {
+    background: #083553;
+    color: white;
+    width: 240px;
+    height: 100vh;
+    padding: 1rem;
+  }
+  .sidebar-btn {
+    display: block;
+    padding: 10px;
+    color: white;
+    text-decoration: none;
+    margin-top: 8px;
+  }
+  .sidebar-btn.active { background-color: #0b486b; border-radius: 6px; }
+  .main-content { flex: 1; padding: 2rem; background: #f5f5f5; }
+
+  .chart-card {
+    background: white;
+    padding: 1rem;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    text-align: center;
+  }
+
+  .favoritos-count {
+    font-size: 48px;
+    font-weight: bold;
+    color: #0b486b;
+    margin-top: 10px;
+  }
+</style>
 {% endblock %}

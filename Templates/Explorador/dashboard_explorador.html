@@ -47,34 +47,42 @@
       </div>
     </div>
 
-    <!-- === SECCIÓN FAVORITOS === -->
+    <!-- === SECCIÓN FAVORITOS (actualizada) === -->
     <div id="favoritos" class="content-section">
       <div class="content-card pastel-lavender">
         <h2>Mis lugares favoritos</h2>
-        <table class="data-table wide">
-          <thead>
-            <tr>
-              <th>Nombre</th>
-              <th>Categoría</th>
-              <th>Última visita</th>
-              <th>Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>La Hamburguesería</td>
-              <td>Gastronomía</td>
-              <td>03/11/2025</td>
-              <td><button class="btn small btn-secondary">Eliminar</button></td>
-            </tr>
-            <tr>
-              <td>Sabana Park</td>
-              <td>Entretenimiento</td>
-              <td>31/10/2025</td>
-              <td><button class="btn small btn-secondary">Eliminar</button></td>
-            </tr>
-          </tbody>
-        </table>
+
+        {% if favoritos %}
+          <table class="data-table wide">
+            <thead>
+              <tr>
+                <th>Nombre</th>
+                <th>Categoría</th>
+                <th>Guardado el</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for fav in favoritos %}
+              <tr>
+                <td>{{ fav.empresa.nombre_emprendimiento  }}</td>
+                <td>{{ fav.empresa.clasificacion }}</td>
+                <td>{{ fav.fecha_guardado.strftime('%d/%m/%Y') }}</td>
+                <td>
+                  <a href="{{ fav.empresa.url or '#' }}" method="post" style="display:inline;">
+                    <button type="submit" class="btn small btn-secondary">Visitar</button>
+                  </a>
+                <form action="{{ url_for('eliminar_favorito', fav_id=fav.id) }}" method="post" style="display:inline;">
+                  <button type="submit" class="btn small btn-secondary">Eliminar</button>
+                </form>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        {% else %}
+          <p>No tienes lugares guardados como favoritos todavía.</p>
+        {% endif %}
       </div>
     </div>
 
