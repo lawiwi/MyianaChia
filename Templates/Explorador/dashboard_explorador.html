@@ -24,28 +24,28 @@
   <div class="main-content">
     <h1 id="section-title">Descubrir lugares</h1>
 
-    <!-- === SECCIÓN DESCUBRIR === -->
-    <div id="descubrir" class="content-section active">
-      <div class="content-card pastel-sky">
-        <h2>Lugares recomendados para ti</h2>
-        <p>Basado en tus intereses y actividad reciente.</p>
-        <div class="grid-lugares">
-          <div class="store-card">
-            <img src="{{ url_for('static', filename='Imagenes/CentroChia.jpg') }}" alt="Centro Chía" class="img-uniforme">
-            <h3>Centro Chía</h3>
-            <p>Centro comercial con zonas verdes y entretenimiento.</p>
-            <a href="https://www.centrochia.com.co/" target="_blank" class="btn btn-primary">Visitar</a>
-          </div>
+  <!-- === SECCIÓN DESCUBRIR === -->
+  <div id="descubrir" class="content-section active">
+    <div class="content-card pastel-sky">
+      <h1 class="main-title">🧭 Buscador de Myiana</h1>
+      <h3 class="subtitle">¿Qué te gustaría descubrir hoy?</h3>
+      <p>Elige una categoría para recibir una recomendación especial.</p>
 
-          <div class="store-card">
-            <img src="{{ url_for('static', filename='Imagenes/AndresDC.jpg') }}" alt="Andrés DC" class="img-uniforme">
-            <h3>Andrés Carne de Res</h3>
-            <p>Restaurante emblemático de Chía con ambiente festivo.</p>
-            <a href="https://www.andrescarnederes.com/" target="_blank" class="btn btn-primary">Visitar</a>
-          </div>
-        </div>
+      <!-- Botones de categorías -->
+      <div class="category-buttons">
+        <button class="btn btn-primary" onclick="recomendarLugar('comida')">🍽️ Comida</button>
+        <button class="btn btn-primary" onclick="recomendarLugar('naturaleza')">🌳 Naturaleza</button>
+        <button class="btn btn-primary" onclick="recomendarLugar('cultura')">🎨 Arte y Cultura</button>
+        <button class="btn btn-primary" onclick="recomendarLugar('deporte')">⚽ Deportes</button>
+        <button class="btn btn-primary" onclick="recomendarLugar('compras')">🛍️ Compras</button>
+        <button class="btn btn-primary" onclick="recomendarLugar('tecnologia')">💻 Tecnología</button>
       </div>
+
+      <!-- Resultado aleatorio -->
+      <div id="recomendacion-aleatoria" class="grid-lugares" style="margin-top: 25px;"></div>
     </div>
+
+  </div>
 
     <!-- === SECCIÓN FAVORITOS (actualizada) === -->
     <div id="favoritos" class="content-section">
@@ -173,6 +173,52 @@
         scales: { y: { beginAtZero: true } }
       }
     });
+  }
+</script>
+
+<!-- === SCRIPT DE RECOMENDACIONES ALEATORIAS === -->
+<script>
+  const exploradorId = {{ explorador.id }}; // Asumiendo que lo pasas desde Flask
+
+  // --- Cargar recomendaciones personalizadas ---
+  fetch(`/recomendaciones/${exploradorId}`)
+    .then(res => res.json())
+    .then(data => {
+      const contenedor = document.getElementById('recomendaciones-personalizadas');
+      if (!data.length) {
+        contenedor.innerHTML = `<p>No hay recomendaciones personalizadas aún. ¡Explora más lugares!</p>`;
+        return;
+      }
+
+      contenedor.innerHTML = data.map(lugar => `
+        <div class="store-card">
+          <img src="${lugar.imagen}" alt="${lugar.nombre}" class="img-uniforme">
+          <h3>${lugar.nombre}</h3>
+          <p>${lugar.descripcion}</p>
+          <a href="${lugar.url}" target="_blank" class="btn btn-primary">Visitar</a>
+        </div>
+      `).join('');
+    });
+
+  // --- Recomendación por categoría ---
+  function recomendarLugar(categoria) {
+    fetch(`/recomendar/${categoria}`)
+      .then(res => res.json())
+      .then(lugar => {
+        const contenedor = document.getElementById('recomendacion-aleatoria');
+        if (lugar.error) {
+          contenedor.innerHTML = `<p>No hay lugares en esta categoría aún.</p>`;
+          return;
+        }
+        contenedor.innerHTML = `
+          <div class="store-card">
+            <img src="${lugar.imagen}" alt="${lugar.nombre}" class="img-uniforme">
+            <h3>${lugar.nombre}</h3>
+            <p>${lugar.descripcion}</p>
+            <a href="${lugar.url}" target="_blank" class="btn btn-primary">Visitar</a>
+          </div>
+        `;
+      });
   }
 </script>
 {% endblock %}
