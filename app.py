@@ -394,12 +394,22 @@ def registrar_empresa():
         url_empresa = request.form.get('url')
         imagen = request.files.get('imagen')
 
-        # Guardar imagen
-        filename = None
-        if imagen and imagen.filename:
-            filename = secure_filename(imagen.filename)
-            upload_path = os.path.join(app.static_folder, 'Empresas', filename)
-            imagen.save(upload_path)
+    imagen = request.files.get('imagen')
+    imagen_filename = None
+
+    if imagen and imagen.filename:
+        # Aseguramos un nombre seguro
+        filename_seguro = secure_filename(imagen.filename)
+        extension = os.path.splitext(filename_seguro)[1]
+
+        # Generamos un nuevo nombre más uniforme
+        nombre_limpio = secure_filename(nombre_emprendimiento.lower().replace(" ", "_"))
+        nuevo_nombre = f"{nombre_limpio}{extension}"
+
+        # Guardamos en la carpeta Empresas/
+        ruta_guardado = os.path.join(app.static_folder, 'Empresas', nuevo_nombre)
+        imagen.save(ruta_guardado)
+        imagen_filename = nuevo_nombre
 
         nueva_empresa = Empresa(
             nombre_emprendimiento=nombre_emprendimiento,
@@ -410,7 +420,7 @@ def registrar_empresa():
             descripcion=descripcion,
             rango_precios=rango_precios,
             url=url_empresa,
-            imagen_filename=filename,
+            imagen_filename=imagen_filename,
             emprendedor_id=emprendedor.id
         )
 
@@ -838,7 +848,25 @@ def explorador_dashboard():
     favoritos = Favorito.query.filter_by(explorador_id=explorador.id)\
         .order_by(Favorito.fecha_guardado.desc()).all()
     
-    return render_template('Explorador/dashboard_explorador.html', user=user, favoritos=favoritos)
+    return render_template('Explorador/dashboard_explorador.html', user=user, favoritos=favoritos, explorador=explorador)
+
+# Ruta para recomendar un lugar por categoría
+@app.route('/recomendar/<categoria>')
+def recomendar_lugar(categoria):
+    from random import choice
+    lugares = Empresa.query.filter(Empresa.clasificacion.ilike(f'%{categoria}%')).all()
+    if not lugares:
+        return jsonify({'error': 'No hay lugares en esta categoría'}), 404
+
+    lugar = choice(lugares)
+    return jsonify({
+        'nombre': lugar.nombre_emprendimiento,
+        'descripcion': lugar.descripcion,
+        'imagen': url_for('static', filename=f'Empresas/{lugar.imagen_filename}') if lugar.imagen_filename else url_for('static', filename='Imagenes/default.jpg'),
+        'url': lugar.url or '#'
+    })
+
+
 
 @app.route('/eliminar_favorito/<int:fav_id>', methods=['POST'])
 def eliminar_favorito(fav_id):
