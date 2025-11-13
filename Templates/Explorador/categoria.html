@@ -76,10 +76,20 @@
 <section class="filtros-section">
   <div class="container filtros">
     <select id="filtroZona">
-      <option value="">Filtrar por zona</option>
+      <option value="">Filtrar por sector</option>
       <option value="Centro">Centro</option>
-      <option value="Norte">Norte</option>
-      <option value="Sabana">Sabana</option>
+      <option value="El Cerrito">El Cerrito</option>
+      <option value="Delicias">Delicias</option>
+      <option value="Campin">Campín</option>
+      <option value="Santa Rita">Santa Rita</option>
+      <option value="Tres esquinas">Tres esquinas</option>
+      <option value="Rio Frio">Río Frío</option>
+      <option value="El Misterio">El Misterio</option>
+      <option value="La Estacion">La Estación</option>
+      <option value="Fagua">Fagua</option>
+      <option value="Yerbabuena ">Yerbabuena </option>
+      <option value="Fonquetá ">Fonquetá</option>
+      <option value="Bojacá">Bojacá</option>
     </select>
 
     <select id="filtroPrecio">
@@ -339,6 +349,51 @@ function toggleFavorito(btn, empresaId){
   })
   .catch(e => console.error(e));
 }
+
+
+document.addEventListener("DOMContentLoaded", function () {
+  const filtroZona = document.getElementById("filtroZona");
+  const filtroPrecio = document.getElementById("filtroPrecio");
+  const filtroAZ = document.getElementById("filtroAZ");
+  const cards = Array.from(document.querySelectorAll(".card-horizontal"));
+
+  function aplicarFiltros() {
+    const zona = filtroZona.value;
+    const precio = filtroPrecio.value;
+    const orden = filtroAZ.value;
+
+    // --- Filtrar por zona y precio ---
+    cards.forEach(card => {
+      const cardZona = card.dataset.zona;
+      const cardPrecio = card.dataset.precio;
+      let visible = true;
+
+      if (zona && cardZona !== zona) visible = false;
+      if (precio && cardPrecio !== precio) visible = false;
+
+      card.style.display = visible ? "flex" : "none";
+    });
+
+    // --- Ordenar alfabéticamente las visibles ---
+    if (orden) {
+      const contenedor = document.getElementById("listaEmpresas");
+      const visibles = cards.filter(c => c.style.display !== "none");
+
+      visibles.sort((a, b) => {
+        const nombreA = a.dataset.nombre || "";
+        const nombreB = b.dataset.nombre || "";
+        return orden === "asc" ? nombreA.localeCompare(nombreB) : nombreB.localeCompare(nombreA);
+      });
+
+      visibles.forEach(card => contenedor.appendChild(card));
+    }
+  }
+
+  // Escuchar cambios
+  [filtroZona, filtroPrecio, filtroAZ].forEach(select => {
+    select.addEventListener("change", aplicarFiltros);
+  });
+});
 </script>
 <script>
 document.querySelectorAll('.visit-btn').forEach(btn => {
