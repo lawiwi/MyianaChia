@@ -67,7 +67,7 @@
     align-items: center;
     min-height: 100px;
     margin: 0 auto;
-    max-width: 900px;
+    max-width: 750px;
     width: 100%;
 }
 
@@ -75,7 +75,7 @@
 .book {
     position: relative;
     width: 950px;        /* antes 1200px */
-    height: 630px;       /* antes 800px */
+    height: 500px;       /* antes 800px */
     transition: transform 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94);
     transform-style: preserve-3d;
     margin: 0 auto;
@@ -184,7 +184,7 @@
 }
 
 .portada-content h2 {
-    font-size: 3.5rem;
+    font-size: 2.5rem;
     margin-bottom: 30px;
     font-weight: 800;
     text-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
@@ -197,7 +197,7 @@
 }
 
 .portada-content p {
-    font-size: 1.5rem;
+    font-size: 1.3rem;
     line-height: 1.8;
     margin-bottom: 50px;
     max-width: 700px;
@@ -243,7 +243,7 @@
     text-decoration: none;
     color: inherit;
     border: 2px solid rgba(245, 158, 11, 0.2);
-    height: 240px;
+    height: 200px;
     position: relative;
 }
 
@@ -254,9 +254,9 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background: linear-gradient(135deg, rgba(245,158,11,0.05) 0%, rgba(11,72,107,0.05) 100%);
+    background: linear-gradient(135deg, rgba(43, 84, 108, 0.05) 60%,rgba(251, 191, 87, 0.05) 0%);
     opacity: 0;
-    transition: opacity 0.4s ease;
+    transition: opacity 0.2s ease;
 }
 
 .store-card:hover::before {
@@ -266,7 +266,7 @@
 .store-card:hover {
     transform: translateY(-12px) scale(1.02);
     box-shadow: 0 25px 60px rgba(0, 0, 0, 0.25);
-    border-color: rgba(245, 158, 11, 0.5);
+    border-color: rgba(245, 159, 11, 0.753);
 }
 
 .store-card.reverse {
@@ -303,20 +303,19 @@
 }
 
 .store-card-content h3 {
-    font-size: 2rem;
+    font-size: 1.5rem;
     color: #0b486b;
-    margin-bottom: 15px;
     font-weight: 750;
     font-family: "Poppins", sans-serif;
     line-height: 1.2;
 }
 
 .store-card-content p {
-    font-size: 1.2rem;
+    font-size: 0.8rem;
     line-height: 1.7;
     color: #475569;
-    margin-bottom: 12px;
-    font-weight: 500;
+    margin-bottom: 5px;
+    font-weight: 400;
 }
 
 .store-card-content strong {
@@ -362,11 +361,11 @@
 }
 
 #prev-btn {
-    left: -140px;
+    left: -300px;
 }
 
 #next-btn {
-    right: -140px;
+    right: -300px;
 }
 
 /* Orden de las páginas */
@@ -485,11 +484,11 @@
     }
     
     #prev-btn {
-        left: -80px;
+        left: -90px;
     }
     
     #next-btn {
-        right: -80px;
+        right: -90px;
     }
     
     .portada-content h2 {
@@ -501,7 +500,7 @@
     }
     
     .section-title {
-        font-size: 2.2rem;
+        font-size: 2.0rem;
     }
     
     .section-subtitle {
@@ -519,7 +518,7 @@
     }
     
     .book {
-        height: 450px;
+        height: 300px;
     }
     
     .front-content, .back-content {
@@ -591,7 +590,7 @@
     border-radius: 22px;
     z-index: -1;
     opacity: 0;
-    transition: opacity 0.4s ease;
+    transition: opacity 0.4s eas    e;
 }
 
 .store-card:hover::after {

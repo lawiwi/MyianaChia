@@ -4,6 +4,125 @@
 {% block content %}
 <link rel="stylesheet" href="{{ url_for('static', filename='Estilos/login.css') }}">
 
+<!-- AGREGAR ESTOS ESTILOS PARA LOS BOTONES -->
+<style>
+  /* ===== ESTILOS PARA BOTONES DE ACCIÓN ===== */
+  .btn {
+    display: inline-block;
+    padding: 6px 12px;
+    margin: 2px;
+    border: none;
+    border-radius: 6px;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-align: center;
+  }
+
+  .btn-sm {
+    padding: 5px 10px;
+    font-size: 13px;
+  }
+
+  /* Botón VER - Color azul/info */
+  .btn-info {
+    background-color: #17a2b8;
+    color: white;
+  }
+  .btn-info:hover {
+    background-color: #138496;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  }
+
+  /* Botón EDITAR - Color amarillo/warning */
+  .btn-warning {
+    background-color: #ffc107;
+    color: #212529;
+  }
+  .btn-warning:hover {
+    background-color: #e0a800;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  }
+
+  /* Botón ELIMINAR - Color rojo/danger */
+  .btn-danger {
+    background-color: #dc3545;
+    color: white;
+  }
+  .btn-danger:hover {
+    background-color: #c82333;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  }
+
+  /* Botón GUARDAR - Color verde/success */
+  .btn-success {
+    background-color: #28a745;
+    color: white;
+    padding: 8px 16px;
+  }
+  .btn-success:hover {
+    background-color: #218838;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+  }
+
+  /* Botón CANCELAR - Color gris/secondary */
+  .btn-secondary {
+    background-color: #6c757d;
+    color: white;
+    padding: 8px 16px;
+  }
+  .btn-secondary:hover {
+    background-color: #5a6268;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+  }
+
+  /* Contenedor de botones en tablas */
+  .btn-action-group {
+    display: flex;
+    gap: 5px;
+    flex-wrap: nowrap;
+  }
+
+  /* Asegurar que los botones en tablas se vean bien */
+  table .btn {
+    white-space: nowrap;
+    min-width: 60px;
+  }
+
+  /* Mejoras para los formularios en línea */
+  form[style*="display:inline"] {
+    display: inline-block;
+    margin: 0;
+  }
+
+  /* Efectos adicionales para mejor UX */
+  .btn:active {
+    transform: translateY(0);
+    box-shadow: none;
+  }
+
+  /* Responsive para móviles */
+  @media (max-width: 768px) {
+    .btn-action-group {
+      flex-direction: column;
+      gap: 3px;
+    }
+    
+    table .btn {
+      min-width: 50px;
+      font-size: 12px;
+      padding: 4px 8px;
+    }
+  }
+</style>
+
 <div class="dashboard">
   <!-- ===== SIDEBAR IZQUIERDA ===== -->
   <div class="sidebar">
@@ -83,12 +202,14 @@
               <td>{{ e.plan or '-' }}</td>
               <td>{{ e.clasificacion or '-' }}</td>
               <td>
-                <!-- Botón Ver --> 
-                <a href="{{ url_for('ver_emprendimiento', id=e.id) }}" class="btn btn-info btn-sm">Ver</a>
-                <button class="btn btn-warning btn-sm" onclick="abrirModalEditar('{{ e.id }}', '{{ e.nombre_emprendimiento }}', '{{ e.nit }}', '{{ e.zona }}', '{{ e.ubicacion }}', '{{ e.plan }}', '{{ e.clasificacion }}')">Editar</button>
-                <form action="{{ url_for('eliminar_emprendimiento', id=e.id) }}" method="POST" style="display:inline;" onsubmit="return confirm('¿Seguro que deseas eliminar este emprendimiento?');">
-                  <button type="submit" class="btn btn-danger btn-sm">Eliminar</button>
-                </form>
+                <div class="btn-action-group">
+                  <!-- Botón Ver --> 
+                  <a href="{{ url_for('ver_emprendimiento', id=e.id) }}" class="btn btn-info btn-sm">Ver</a>
+                  <button class="btn btn-warning btn-sm" onclick="abrirModalEditar('{{ e.id }}', '{{ e.nombre_emprendimiento }}', '{{ e.nit }}', '{{ e.zona }}', '{{ e.ubicacion }}', '{{ e.plan }}', '{{ e.clasificacion }}')">Editar</button>
+                  <form action="{{ url_for('eliminar_emprendimiento', id=e.id) }}" method="POST" style="display:inline;" onsubmit="return confirm('¿Seguro que deseas eliminar este emprendimiento?');">
+                    <button type="submit" class="btn btn-danger btn-sm">Eliminar</button>
+                  </form>
+                </div>
               </td>
             </tr>
             {% endfor %}
@@ -128,13 +249,15 @@
               <td>{{ x.preferencias or 'Sin preferencias' }}</td>
               <td>{{ x.fecha_nacimiento or '-' }}</td>
               <td>
-                <a href="{{ url_for('ver_explorador', id=x.id) }}" class="btn btn-info btn-sm">Ver</a>
-                <button class="btn btn-warning btn-sm"
-                  onclick="abrirModalEditarExplorador('{{ x.id }}', '{{ x.primer_nombre }}', '{{ x.segundo_nombre }}', '{{ x.primer_apellido }}', '{{ x.segundo_apellido }}', '{{ x.telefono }}', '{{ x.preferencias }}', '{{ x.fecha_nacimiento }}')">Editar</button>
-                <form action="{{ url_for('eliminar_explorador', id=x.id) }}" method="POST" style="display:inline;"
-                  onsubmit="return confirm('¿Seguro que deseas eliminar este explorador?');">
-                  <button type="submit" class="btn btn-danger btn-sm">Eliminar</button>
-                </form>
+                <div class="btn-action-group">
+                  <a href="{{ url_for('ver_explorador', id=x.id) }}" class="btn btn-info btn-sm">Ver</a>
+                  <button class="btn btn-warning btn-sm"
+                    onclick="abrirModalEditarExplorador('{{ x.id }}', '{{ x.primer_nombre }}', '{{ x.segundo_nombre }}', '{{ x.primer_apellido }}', '{{ x.segundo_apellido }}', '{{ x.telefono }}', '{{ x.preferencias }}', '{{ x.fecha_nacimiento }}')">Editar</button>
+                  <form action="{{ url_for('eliminar_explorador', id=x.id) }}" method="POST" style="display:inline;"
+                    onsubmit="return confirm('¿Seguro que deseas eliminar este explorador?');">
+                    <button type="submit" class="btn btn-danger btn-sm">Eliminar</button>
+                  </form>
+                </div>
               </td>
             </tr>
             {% endfor %}
@@ -143,7 +266,6 @@
       </div>
     </div>
 
-
     <!-- === SECCIÓN AUDITORÍA === -->
     <div id="auditoria" class="content-section">
       <div class="chart-card">
@@ -151,7 +273,7 @@
         <canvas id="chartAuditoria"></canvas>
       </div>
       
-      <table class="data-table">
+      <table id="tablaAuditoria" class="table table-striped" style="width:100%; margin-top:15px;">
         <thead>
           <tr>
             <th>Fecha</th>
@@ -426,9 +548,25 @@
   });
 </script>
 
-
-
 <style>
+
+  #tablaAuditoria {
+    border-collapse: collapse;
+    width: 100%;
+    margin-bottom: 30px;
+  }
+  #tablaAuditoria th, #tablaAuditoria td {
+    padding: 10px;
+    border: 1px solid #ddd;
+  }
+  #tablaAuditoria th {
+    background-color: #0b486b;
+    color: white;
+  }
+  #tablaAuditoria tr:nth-child(even) {
+    background-color: #f2f2f2;
+  }
+
   .stats-grid {
     display: flex;
     gap: 1rem;
