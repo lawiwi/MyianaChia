@@ -118,7 +118,12 @@
         <p class="descripcion">{{ e.descripcion[:240] ~ ('...' if e.descripcion and e.descripcion|length > 240 else '') }}</p>
 
         <div class="card-actions">
-          <a href="{{ e.url or '#' }}" target="_blank" class="btn btn-primary small">Visitar</a>
+          <a href="{{ e.url or '#' }}" 
+            target="_blank" 
+            class="btn btn-primary small visit-btn"
+            data-empresa-id="{{ e.id }}">
+            Visitar
+          </a>
           <button class="btn-heart" data-empresa="{{ e.id }}" onclick="toggleFavorito(this, {{ e.id }})" aria-label="Guardar">
             <i class="fas fa-heart"></i>
           </button>
@@ -266,6 +271,9 @@
   border: 1px solid #ff9710;
   background: #fbc97a51;
 }
+.categoria-ocio .btn-heart {
+  color: #ffc375;
+}
 /* ⚽ Deportes */
 .categoria-deportes .btn-primary {
   background: linear-gradient(135deg, #AADADB, #8bcaca);
@@ -276,6 +284,9 @@
 .categoria-deportes .filtros select {
   border: 1px solid #00fbff;
   background: #8bcaca51;
+}
+.categoria-deportes .btn-heart {
+  color: #AADADB;
 }
 /* 🛍️ Compras */
 .categoria-compras .btn-primary {
@@ -288,11 +299,14 @@
   border: 1px solid #ff00e1;
   background: #f2b5e95f;
 }
+.categoria-compras .btn-heart {
+  color: #E59BDC;
+}
 
 .btn-heart {
   background: none;
   border: none;
-  font-size: 20px;
+  font-size: 30px;
   color: #cbd5e1;
   cursor: pointer;
   transition: color .2s;
@@ -326,7 +340,19 @@ function toggleFavorito(btn, empresaId){
   .catch(e => console.error(e));
 }
 </script>
+<script>
+document.querySelectorAll('.visit-btn').forEach(btn => {
+  btn.addEventListener('click', async (event) => {
+    const empresaId = btn.getAttribute('data-empresa-id');
 
+    try {
+      await fetch(`/registrar_visita/${empresaId}`, { method: 'POST' });
+    } catch (error) {
+      console.error('Error registrando la visita:', error);
+    }
+  });
+});
+</script>
 {% endblock %}
 
 <!-- ESTILOS MEJORADOS -->
